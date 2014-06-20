@@ -2,54 +2,38 @@
 #include <stdlib.h>
 #include <time.h>
 
+// Prototipos
 int *crearVector(int);
 void quickSort(int*, int, int);
 int particion(int*, int, int);
 
+
 int main (int argc, char *argv[]){
     int tamanioVector;
     int *punteroVector = NULL;
-    
     time_t comienzoOrdenamiento, finalOrdenamiento;
+    
     
     if (argc == 2){
         tamanioVector = atoi(argv[1]);
     }
     else{
-        printf("ERROR >> El programa debe ser invocado con un parametro que indique el tamanio del vector.");
-        return 0;
+        printf("ERROR >> El programa debe ser invocado con un parametro que indique el tamanio del vector.\n");
+        return 1;
     }
-
+    
 
     punteroVector = crearVector(tamanioVector);
-
-	/*
-    printf("Vector sin ordenar:\n\n");
-
-    for (i=0; i<tamanioVector; i++){
-        printf("[%d] = %d\n", i, *(punteroVector + i));
-        //printf("[%d] = %d\n", i, punteroVector[i]);
-    }*/
     
     comienzoOrdenamiento = time(NULL);
 
-
     quickSort(punteroVector, 0, tamanioVector-1);
     
-    
     finalOrdenamiento = time(NULL);
-    
-    
+
     printf("%d, %f\n",tamanioVector, difftime(finalOrdenamiento, comienzoOrdenamiento));
 
-	/*
-    printf("\n\nVector ordenado:\n\n");
-
-    for (i=0; i<tamanioVector; i++){
-        printf("[%d] = %d\n", i, *(punteroVector + i));
-        //printf("[%d] = %d\n", i, punteroVector[i]);
-    }*/
-    return 1;
+    return 0;
 }
 
 
@@ -79,6 +63,7 @@ int *crearVector (int tamanio){
     }
 }
 
+
 void quickSort(int *punteroVector, int izq, int der){
     int j;
 
@@ -88,6 +73,7 @@ void quickSort(int *punteroVector, int izq, int der){
         quickSort(punteroVector, j+1, der);
     }
 }
+
 
 int particion(int *punteroVector, int izq, int der){
     int pivot, i, j, t;
