@@ -79,6 +79,9 @@ int main (int argc, char *argv[]){
 	// Notar que se utiliza la comunicacion en grupo Scatterv ya que las porciones a distribuir entre los procesos pueden no ser del mismo tamanio.
     MPI_Scatterv(punteroVector, sendcounts, displs, MPI_INT, bufferRecepcion, sendcounts[numeroNodo], MPI_INT, 0, MPI_COMM_WORLD);    
     
+    if (numeroNodo == 0){
+        free(punteroVector);
+    }    
     free(displs);
     
 	quickSort(bufferRecepcion, 0, sendcounts[numeroNodo] - 1);
@@ -243,12 +246,24 @@ int main (int argc, char *argv[]){
 		}
 	}
 	
+	// Vuelvo a crear espacio para todos los elementos en el proceso maestro.
+	// Notar que para optimizarlo una vez que los elementos se distribuyen con la funcion de comunicacion en grupo Scatterv el espacio del vector con los elementos a ordenar es borrado.
+	// Por ello es necesario crear espacio para recibir los vectores ordenados provenientes de los distintos procesos.
+	if (numeroNodo == 0){
+		punteroVector = (int*) calloc(tamanioVector, sizeof(int));
+
+		if (punteroVector == NULL){
+			printf("ERROR >> No se pudo crear el vector.\n");
+			return 1;
+		}
+	}	
+	
     MPI_Gatherv(recvFinal, cantidadFinalRecivida, MPI_INT, punteroVector, recvCountsGather, recvDisplGather, MPI_INT, 0, MPI_COMM_WORLD);
 	
 	free(recvDisplGather);
 	free(recvCountsGather);
 	free(recvFinal);
-	
+
 	if (numeroNodo == 0){
 		free(punteroVector);
 	}
@@ -261,7 +276,8 @@ int main (int argc, char *argv[]){
 	
 	// Cada proceso realiza el calculo del tiempo transcurrido.
     double tiempoTranscurrido = difftime(finalOrdenamiento, comienzoOrdenamiento);
-
+	
+	
 	// Todos los procesos excepto el maestro envian un mensaje al maestro con el tiempo transcurrido.
     if (numeroNodo != 0){
         MPI_Send(&tiempoTranscurrido, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
